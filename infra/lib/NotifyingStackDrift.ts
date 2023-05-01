@@ -15,9 +15,9 @@ export class NotifyingStackDrift extends Construct {
     new events.Rule(this, id, {
       description: "Starts the CloudFormation Drift Detection task every night",
       ruleName: "cloudformation_scheduler",
-      schedule: events.Schedule.expression("cron(0 6 * * ? *)"),
+      schedule: events.Schedule.expression("cron(25 10 * * * *)"),
       targets: [new targets.AwsApi({
-        action:'DetectStackDrift',
+        action:'detectStackDrift',
         service:'CloudFormation',
         parameters: { "StackName": "payroll-infra-stack" }
       })]
