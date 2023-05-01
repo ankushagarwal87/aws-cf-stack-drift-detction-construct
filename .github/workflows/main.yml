@@ -1,0 +1,45 @@
+name: Code Deploy
+
+on: [push]
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  Code-Deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Configure node on the server
+        uses: actions/setup-node@v1
+        with:
+            node-version: '18.x'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::881279223605:role/oidc-role
+          aws-region: ap-south-1
+
+      - name: Install Infra
+        run: npm install
+        working-directory: infra
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk
+
+      - name: Synth CDK
+        run: cdk synth
+        working-directory: infra
+
+      - name: Bootstrap CDK
+        run: cdk bootstrap
+        working-directory: infra
+
+      - name: Deploy CDK
+        run: cdk deploy --require-approval never
+        working-directory: infra
